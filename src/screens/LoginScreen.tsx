@@ -9,12 +9,20 @@ import BackButton from '../components/BackButton';
 import { theme } from '../core/theme';
 import { emailValidator, passwordValidator } from '../core/utils';
 import { Navigation } from '../types';
+import { Snackbar } from 'react-native-paper';
+import { firebase, db, addDoc, auth, collection, doc, getDocs, setDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword } from '../firebase/config'
 
 type Props = {
   navigation: Navigation;
 };
 
 const LoginScreen = ({ navigation }: Props) => {
+  const [visible, setVisible] = useState(false);
+  const [notificationMessage, setnotificationMessage] = useState('');
+
+  const onToggleSnackBar = () => setVisible(!visible);
+
+  const onDismissSnackBar = () => setVisible(false);
   const [email, setEmail] = useState({ value: '', error: '' });
   const [password, setPassword] = useState({ value: '', error: '' });
 
@@ -27,14 +35,42 @@ const LoginScreen = ({ navigation }: Props) => {
       setPassword({ ...password, error: passwordError });
       return;
     }
+    signInWithEmailAndPassword(auth, email.value, password.value)
+      .then((response) => {
+        // Signed in 
+        const uid = response.user.uid
+        const data = {
+          id: uid,
+          email: email.value,
+          password: password.value
+        };
+        addDoc(collection(db, "users",), data);
+        setnotificationMessage('User logged in Sucessfully');
+        onToggleSnackBar();
+        setTimeout(function () {
+          navigation.navigate('Dashboard')
+        }, 2000);
 
-    navigation.navigate('Dashboard');
+      })
+      .catch((error) => {
+        console.log(error.code)
+        console.log(error.message);
+        setnotificationMessage(error.message);
+        onToggleSnackBar();
+      });
   };
 
   return (
     <Background>
       <BackButton goBack={() => navigation.navigate('HomeScreen')} />
-
+      <Snackbar
+        visible={visible}
+        onDismiss={onDismissSnackBar}
+        action={{
+          label: 'X',
+        }}>
+        {notificationMessage ? notificationMessage : null}
+      </Snackbar>
       <Logo />
 
       <Header>Welcome back.</Header>

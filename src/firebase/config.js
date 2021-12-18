@@ -1,10 +1,21 @@
-import * as firebase from 'firebase';
-import '@firebase/auth';
-import '@firebase/firestore';
+import * as firebase from '@firebase/app';
+import {
+  getFirestore,
+  collection,
+  doc,
+  addDoc,
+  getDocs,
+  setDoc,
+} from 'firebase/firestore';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: 'AIzaSyBqbS8i5Tyu54VcaTh6hNQhm887LnKrK6o',
@@ -16,8 +27,20 @@ const firebaseConfig = {
   databaseURL: 'https://saylani-hackthon-final-default-rtdb.firebaseio.com/',
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+const app = firebase.initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
 
-export { firebase };
+export {
+  firebase,
+  db,
+  auth,
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+};

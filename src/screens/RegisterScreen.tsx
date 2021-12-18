@@ -13,13 +13,21 @@ import {
   passwordValidator,
   nameValidator,
 } from '../core/utils';
-import { firebase } from '../firebase/config'
+import { Snackbar } from 'react-native-paper';
+import { firebase, db, addDoc, auth, collection, doc, getDocs, setDoc, createUserWithEmailAndPassword } from '../firebase/config'
 
 type Props = {
   navigation: Navigation;
 };
 
 const RegisterScreen = ({ navigation }: Props) => {
+  const [visible, setVisible] = useState(false);
+  const [notificationMessage, setnotificationMessage] = useState('');
+
+  const onToggleSnackBar = () => setVisible(!visible);
+
+  const onDismissSnackBar = () => setVisible(false);
+
   const [name, setName] = useState({ value: '', error: '' });
   const [email, setEmail] = useState({ value: '', error: '' });
   const [password, setPassword] = useState({ value: '', error: '' });
@@ -29,43 +37,49 @@ const RegisterScreen = ({ navigation }: Props) => {
     const emailError = emailValidator(email.value);
     const passwordError = passwordValidator(password.value);
 
+
     if (emailError || passwordError || nameError) {
       setName({ ...name, error: nameError });
       setEmail({ ...email, error: emailError });
       setPassword({ ...password, error: passwordError });
       return;
     }
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
+    createUserWithEmailAndPassword(auth, email.value, password.value)
       .then((response) => {
+        // Signed in 
         const uid = response.user.uid
         const data = {
           id: uid,
-          email,
-          name,
+          email: email.value,
+          password: password.value
         };
-        const usersRef = firebase.firestore().collection('users')
-        usersRef
-          .doc(uid)
-          .set(data)
-          .then(() => {
-            navigation.navigate('Dashboard');
-          })
-          .catch((error) => {
-            alert(error)
-          });
+        addDoc(collection(db, "users",), data);
+        setnotificationMessage('User Created Sucessfully');
+        onToggleSnackBar();
+        setTimeout(function () {
+          navigation.navigate('LoginScreen')
+        }, 2000);
+
       })
       .catch((error) => {
-        alert(error)
+        console.log(error.code)
+        console.log(error.message);
+        setnotificationMessage(error.message);
+        onToggleSnackBar();
       });
-    // navigation.navigate('Dashboard');
   };
 
   return (
     <Background>
       <BackButton goBack={() => navigation.navigate('HomeScreen')} />
-
+      <Snackbar
+        visible={visible}
+        onDismiss={onDismissSnackBar}
+        action={{
+          label: 'X',
+        }}>
+        {notificationMessage ? notificationMessage : null}
+      </Snackbar>
       <Logo />
 
       <Header>Create Account</Header>
