@@ -23,9 +23,9 @@ const HomeScreen = ({ navigation }: Props) => {
       <Button
         mode="contained"
         textColor="white"
-        onPress={() => navigation.navigate('Dashboard')}
+        onPress={() => navigation.navigate('LoginScreen')}
       >
-        Dashboard
+        Let's Go!
       </Button>
     </Background>
   );
