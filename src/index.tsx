@@ -22,7 +22,7 @@ const Router = createStackNavigator(
     QRScreen,
   },
   {
-    initialRouteName: !auth.currentUser ? 'QRScreen' : 'HomeScreen',
+    initialRouteName: auth.currentUser ? 'Dashboard' : 'HomeScreen',
     headerMode: 'none',
   }
 );
