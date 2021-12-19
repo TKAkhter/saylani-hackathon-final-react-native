@@ -11,10 +11,9 @@ import { Snackbar } from 'react-native-paper';
 import { nameValidator, passwordValidator } from '../core/utils';
 import { firebase, db, addDoc, auth, collection, doc, getDocs, setDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from '../firebase/config'
 import ReactMapGL, { Marker, GeolocateControl } from 'react-map-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+// import 'mapbox-gl/dist/mapbox-gl.css';
+// import '../assets/css/map.css';
 import data from '../assets/data/food_bank.json';
-import '../assets/css/map.css';
-import QRCode from 'react-native-qrcode-svg';
 
 type Props = {
   navigation: Navigation;
@@ -60,12 +59,13 @@ const Dashboard = ({ navigation }) => {
     });
   }
   const [distances, setDistances] = useState([]);
+  const [popupInfo, setPopupInfo] = useState(null);
   const [viewport, setViewport] = useState({
     width: 400,
-    height: 400,
+    height: 300,
     latitude: 24.914,
     longitude: 67.082,
-    zoom: 10,
+    zoom: 3.5,
   });
 
   const MAPBOX_TOKEN =
@@ -91,10 +91,9 @@ const Dashboard = ({ navigation }) => {
   const [dob, setDob] = useState({ value: '', error: '' });
   const [familyMembers, setFamilyMembers] = useState({ value: '', error: '' });
   const [category, setCategory] = useState({ value: '', error: '' });
-  const [QRCodeGenerated, setQRCodeGenerated] = useState('');
+  const [monthlyIncome, setMonthlyIncome] = useState({ value: '', error: '' });
 
-  console.log(distances);
-
+  // console.log(distances);
   const sendRequest = () => {
     const data = {
       branch: branch.value,
@@ -103,13 +102,16 @@ const Dashboard = ({ navigation }) => {
       cnic: cnic.value,
       dob: dob.value,
       familyMembers: familyMembers.value,
+      monthlyIncome: monthlyIncome.value,
       category: category.value,
+      status: 'pending'
     };
+
     addDoc(collection(db, "requests",), data);
     setnotificationMessage('Request Created Successfully');
     onToggleSnackBar();
     setTimeout(function () {
-      setQRCodeGenerated(cnic.value)
+      navigation.navigate('QRScreen')
     }, 2000);
   };
 
@@ -152,7 +154,11 @@ const Dashboard = ({ navigation }) => {
                   stroke: 'none',
                   transform: `translate(${-SIZE / 2}px,${-SIZE}px)`,
                 }}
-                onClick={() => onClick(city)}
+                onClick={() => {
+                  setnotificationMessage(city.branch_name);
+                  onToggleSnackBar();
+                }
+                }
               >
                 <path d={ICON} />
               </svg>
@@ -249,12 +255,18 @@ const Dashboard = ({ navigation }) => {
           errorText={name.error}
           keyboardType="number-pad"
         />
+
+        <TextInput
+          label="Enter monthly income"
+          returnKeyType="next"
+          value={monthlyIncome.value}
+          onChangeText={text => setmonthlyIncome({ value: text, error: '' })}
+          keyboardType="number-pad"
+        />
+
         <Button mode="contained" textColor='white' onPress={sendRequest}>
           Submit
         </Button>
-        <QRCode
-          value={QRCodeGenerated ? QRCodeGenerated : 'This is QR Code'}
-        />
       </ScrollView>
     </Background>
   )
