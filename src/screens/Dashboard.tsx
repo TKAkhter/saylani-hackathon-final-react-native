@@ -260,7 +260,7 @@ const Dashboard = ({ navigation }) => {
           label="Enter monthly income"
           returnKeyType="next"
           value={monthlyIncome.value}
-          onChangeText={text => setmonthlyIncome({ value: text, error: '' })}
+          onChangeText={text => setMonthlyIncome({ value: text, error: '' })}
           keyboardType="number-pad"
         />
 

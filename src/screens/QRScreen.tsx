@@ -27,7 +27,6 @@ const LoginScreen = ({ navigation }: Props) => {
     const [password, setPassword] = useState({ value: '', error: '' });
 
     const [QRCodeGenerated, setQRCodeGenerated] = useState('');
-    auth.currentUser ? setQRCodeGenerated(auth.currentUser.uid + '&&' + auth.currentUser.email) : '';
 
     return (
         <Background>
